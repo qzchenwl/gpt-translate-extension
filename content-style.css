@@ -1,16 +1,38 @@
 .translation-bubble {
-  bottom: 0;
-  left: 0;
   position: absolute;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 5px;
+  display: inline-block;
+  padding: 10px;
+  background-color: #fafafa; /* 设置气泡的浅色背景 */
+  color: #333333; /* 设置气泡中深色文本的颜色 */
+  border-radius: 5px; /* 设置气泡的圆角 */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 为气泡添加阴影效果 */
   font-size: 14px;
-  z-index: 10000;
-  overflow-wrap: break-word; /* 长文本自动换行 */
-  box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2); /* 添加阴影效果 */
+  line-height: 1.4;
+  z-index: 1000;
+  animation: fadeIn 0.3s; /* 添加淡入动画 */
   box-sizing: border-box;
+}
+
+/* 添加一个小三角形在气泡底部，使其看起来像一个指向选中文本的指示器 */
+.translation-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent #fafafa transparent;
+}
+
+/* 定义淡入动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .bubble-content {
@@ -24,14 +46,26 @@
 }
 
 .bubble-buttons button {
-  background-color: #007bff;
-  color: #fff;
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: #1890ff; /* 设置按钮的背景颜色 */
+  color: #ffffff; /* 设置按钮中文本的颜色 */
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
   border: none;
-  border-radius: 0.25rem;
-  padding: 0.5rem 1rem;
+  border-radius: 4px; /* 设置按钮的圆角 */
   cursor: pointer;
+  transition: background-color 0.2s; /* 添加背景颜色过渡效果 */
 }
 
 .bubble-buttons button:hover {
-  background-color: #0056b3;
+  background-color: #40a9ff;
+}
+.bubble-buttons button:focus {
+  background-color: #096dd9;
+}
+.bubble-buttons button:active {
+  background-color: #096dd9;
 }

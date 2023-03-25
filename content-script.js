@@ -102,6 +102,9 @@ async function translateText(text, targetLanguage) {
 
   const data = await response.json();
   console.log("API response:", data);
+  if (!response.ok) {
+    throw data;
+  }
   const translation = data.choices[0].message.content.trim();
   console.log('translation:', translation);
 
@@ -109,29 +112,22 @@ async function translateText(text, targetLanguage) {
 }
 
 function getSelectedNodeWidthAndLeft() {
-  const selectedText = window.getSelection();
+  const range = window.getSelection().getRangeAt(0);
+  const rects = range.getClientRects();
+  let minLeft = Infinity;
+  let maxRight = -Infinity;
 
-  if (selectedText.rangeCount > 0) {
-    const range = selectedText.getRangeAt(0);
-    // 获取选中文本的起点节点
-    const startNode = range.startContainer;
-
-    // 寻找包含选中文本的元素节点（非文本节点）
-    let elementNode = startNode.nodeType === Node.ELEMENT_NODE ? startNode : startNode.parentElement;
-
-    // 获取元素节点的边界矩形信息
-    const rect = elementNode.getBoundingClientRect();
-
-    // 返回元素节点的宽度和相对于视口的 left 值
-    return {
-      width: rect.width,
-      left: rect.left
-    };
+  for (let i = 0; i < rects.length; i++) {
+    const rect = rects[i];
+    minLeft = Math.min(minLeft, rect.left);
+    maxRight = Math.max(maxRight, rect.right);
   }
 
-  return null;
-}
+  const width = maxRight - minLeft;
+  const left = minLeft;
 
+  return { width, left };
+}
 
 async function displayTranslation(text, targetLanguage) {
   const bubble = createBubbleElement('翻译中……');
@@ -154,7 +150,10 @@ async function displayTranslation(text, targetLanguage) {
     copyToClipboard(translation);
     contentContainer.innerText = translation;
   } catch (error) {
-    contentContainer.innerText = '翻译遇到错误：' + error;
+    const message = '翻译遇到错误：' + JSON.stringify(error, null, 2);
+    const pre = document.createElement("pre");
+    pre.innerText = message;
+    contentContainer.innerHTML = pre.outerHTML;
   } finally {
     const { bubbleTimeout } = await getStorageData(["bubbleTimeout"]);
     if (bubbleTimeout > 0) {
