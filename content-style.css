@@ -11,19 +11,20 @@
   z-index: 1000;
   animation: fadeIn 0.3s; /* 添加淡入动画 */
   box-sizing: border-box;
+  filter: drop-shadow(0 0 5px rgba(0, 0, 0, .3));
 }
 
 /* 添加一个小三角形在气泡底部，使其看起来像一个指向选中文本的指示器 */
-.translation-bubble::after {
-  content: "";
+/* .translation-bubble::after {
+  content: '';
   position: absolute;
-  bottom: -10px;
-  left: 50%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: transparent transparent #fafafa transparent;
-}
+  width: 0;
+  height: 0;
+  border: 10px solid transparent;
+  border-bottom-color: #ffffff;
+  top: -20px;
+  left: 50px;
+} */
 
 /* 定义淡入动画 */
 @keyframes fadeIn {
