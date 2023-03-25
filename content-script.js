@@ -136,7 +136,7 @@ async function displayTranslation(text, targetLanguage) {
   try {
     const rect = window.getSelection().getRangeAt(0).getBoundingClientRect();
     // 设置气泡的 bottom 值
-    bubble.style.bottom = (window.innerHeight - (rect.top + window.scrollY) + 4) + 'px';
+    bubble.style.bottom = (window.innerHeight - (rect.top + window.scrollY) + 14) + 'px';
     const { width, left } = getSelectedNodeWidthAndLeft();
     // 设置气泡的 left 值，使其与选中区域左对齐
     bubble.style.left = (left + window.scrollX) + 'px';

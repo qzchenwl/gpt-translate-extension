@@ -5,6 +5,15 @@ document.getElementById("save").addEventListener("click", () => {
   const bubbleTimeout = document.getElementById("bubbleTimeout").value;
   chrome.storage.sync.set({ apiKey, promptChinese, promptEnglish, bubbleTimeout }, () => {
     console.log("API Key 和 Prompts 已保存。");
+
+    const status = document.getElementById("saveStatus");
+    status.style.display = "";
+    status.style.setProperty("-webkit-transition", "opacity 0.4s ease-out");
+    status.style.opacity = 1;
+    window.setTimeout(function() {
+        document.getElementById("saveStatus").style.opacity = 0
+    }, 1500);
+
   });
 });
 

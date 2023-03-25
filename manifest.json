@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "GPT帮我翻译",
-  "version": "1.2",
+  "version": "1.3",
 
   "action": {
     "default_icon": {
@@ -41,8 +41,8 @@
     },
     "translate-en": {
       "suggested_key": {
-        "default": "Ctrl+N",
-        "mac": "Command+N"
+        "default": "Ctrl+B",
+        "mac": "Command+B"
       },
       "description": "翻译为英文"
     }

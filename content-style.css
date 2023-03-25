@@ -15,16 +15,17 @@
 }
 
 /* 添加一个小三角形在气泡底部，使其看起来像一个指向选中文本的指示器 */
-/* .translation-bubble::after {
+.translation-bubble::after {
   content: '';
   position: absolute;
   width: 0;
   height: 0;
   border: 10px solid transparent;
-  border-bottom-color: #ffffff;
-  top: -20px;
-  left: 50px;
-} */
+  border-top-color: #ffffff;
+  top: 100%; /* 将三角形放置在气泡的底部 */
+  left: 50%;
+  transform: translateX(-50%);
+}
 
 /* 定义淡入动画 */
 @keyframes fadeIn {
