@@ -1,0 +1,53 @@
+{
+  "manifest_version": 3,
+  "name": "GPT帮我翻译",
+  "version": "1.0",
+
+  "action": {
+    "default_icon": {
+      "16": "images/icon16.png",
+      "48": "images/icon48.png",
+      "128": "images/icon128.png"
+    }
+  },
+
+  "permissions": ["contextMenus", "storage"],
+
+  "icons": {
+    "16": "images/icon16.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
+  },
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content-script.js"],
+      "css": ["content-style.css"]
+    }
+  ],
+
+  "commands": {
+    "translate-zh": {
+      "suggested_key": {
+        "default": "Ctrl+M",
+        "mac": "Command+M"
+      },
+      "description": "翻译为中文"
+    },
+    "translate-en": {
+      "suggested_key": {
+        "default": "Ctrl+N",
+        "mac": "Command+N"
+      },
+      "description": "翻译为英文"
+    }
+  },
+
+  "options_page": "options.html"
+}
+

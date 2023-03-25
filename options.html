@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>插件选项</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 1rem;
+      }
+
+      h1 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+      }
+
+      label {
+        display: block;
+        margin-top: 1rem;
+        margin-bottom: 0.25rem;
+      }
+
+      input {
+        display: block;
+        width: 100%;
+        max-width: 400px;
+        padding: 0.25rem;
+        box-sizing: border-box;
+      }
+
+      button {
+        display: inline-block;
+        margin-top: 1rem;
+        padding: 0.5rem 1rem;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 0.25rem;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>插件选项</h1>
+    <label for="apiKey">API Key：</label>
+    <input type="text" id="apiKey" />
+    <label for="promptChinese">翻译为中文的 Prompt（使用 {text} 作为待翻译文本的占位符）：</label>
+    <input type="text" id="promptChinese" />
+    <label for="promptEnglish">翻译为英文的 Prompt（使用 {text} 作为待翻译文本的占位符）：</label>
+    <input type="text" id="promptEnglish" />
+    <label for="bubbleTimeout">气泡停留时长（秒）：</label>
+    <input type="number" id="bubbleTimeout" />
+    <button id="save">保存</button>
+
+    <script src="options.js"></script>
+  </body>
+</html>
