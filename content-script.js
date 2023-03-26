@@ -33,14 +33,17 @@ function createBubbleElement(content) {
   return bubble;
 }
 
-
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === "translate") {
-    // 使用 OpenAI 接口进行翻译
-    const { text, targetLanguage } = request;
-    displayTranslation(text, targetLanguage);
-  }
-});
+async function callBackgroundFunction(action, params) {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage({ action, params }, (response) => {
+      if (response.success) {
+        resolve(response.data);
+      } else {
+        reject(response.error);
+      }
+    });
+  });
+}
 
 function unsecuredCopyToClipboard(text) {
   const textArea = document.createElement("textarea");
@@ -69,47 +72,11 @@ function copyToClipboard(content) {
   }
 };
 
+
 async function translateText(text, targetLanguage) {
-  console.log("Translating text:", text, targetLanguage);
-
-  // 从存储中获取 API Key 和 prompt 值
-  const { apiKey, promptChinese, promptEnglish } = await getStorageData(["apiKey", "promptChinese", "promptEnglish"]);
-
-  if (!apiKey) {
-    alert('请在插件选项中配置 API Key');
-    return;
-  }
-
-  const url = 'https://api.openai.com/v1/chat/completions';
-  let prompt = `Translate the following text to ${targetLanguage === 'zh' ? 'Chinese' : 'English'}: ${text}`;
-  const promptValue = targetLanguage === "zh" ? promptChinese : promptEnglish;
-  if (promptValue) {
-    prompt = promptValue.replace("{text}", text);
-  }
-
-  console.log("prompt:", prompt);
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({
-      model: 'gpt-3.5-turbo',
-      messages: [{"role": "user", "content": prompt}]
-    })
-  });
-
-  const data = await response.json();
-  console.log("API response:", data);
-  if (!response.ok) {
-    throw data;
-  }
-  const translation = data.choices[0].message.content.trim();
-  console.log('translation:', translation);
-
-  return translation;
+  return await callBackgroundFunction('translateText', {text, targetLanguage});
 }
+
 
 function getSelectedNodeWidthAndLeft() {
   const range = window.getSelection().getRangeAt(0);
@@ -129,9 +96,10 @@ function getSelectedNodeWidthAndLeft() {
   return { width, left };
 }
 
-async function displayTranslation(text, targetLanguage) {
+async function displayTranslation(targetLanguage) {
   const bubble = createBubbleElement('翻译中……');
   const contentContainer = bubble.querySelector(".bubble-content");
+  const text = window.getSelection().toString();
 
   try {
     const rect = window.getSelection().getRangeAt(0).getBoundingClientRect();
@@ -150,10 +118,14 @@ async function displayTranslation(text, targetLanguage) {
     copyToClipboard(translation);
     contentContainer.innerText = translation;
   } catch (error) {
-    const message = '翻译遇到错误：' + JSON.stringify(error, null, 2);
-    const pre = document.createElement("pre");
-    pre.innerText = message;
-    contentContainer.innerHTML = pre.outerHTML;
+    if (error === 'Unauthorized') {
+      contentContainer.innerHTML = `请前往<a target="_blank" href="https://chat.openai.com/chat">OpenAI</a>登录，或者在设置中使用API模式。`;
+    } else {
+      const message = '翻译遇到错误：' + JSON.stringify(error, null, 2);
+      const pre = document.createElement("pre");
+      pre.innerText = message;
+      contentContainer.innerHTML = pre.outerHTML;
+    }
   } finally {
     const { bubbleTimeout } = await getStorageData(["bubbleTimeout"]);
     if (bubbleTimeout > 0) {
@@ -164,28 +136,10 @@ async function displayTranslation(text, targetLanguage) {
   }
 }
 
-function translate(targetLanguage) {
-  console.log('translate:', targetLanguage);
-  const selectedText = window.getSelection().toString();
-  if (selectedText) {
-    displayTranslation(selectedText, targetLanguage);
-  }
-}
-
-function translateZh() {
-  console.log('translateZh')
-  translate('zh');
-}
-
-function translateEn() {
-  translate('en');
-}
-
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log('onMessage:', message);
-  if (message.action === "translateZh") {
-    translateZh();
-  } else if (message.action === "translateEn") {
-    translateEn();
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "translate") {
+    // 使用 OpenAI 接口进行翻译
+    const { targetLanguage } = request;
+    displayTranslation(targetLanguage);
   }
 });

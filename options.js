@@ -3,7 +3,8 @@ document.getElementById("save").addEventListener("click", () => {
   const promptChinese = document.getElementById("promptChinese").value;
   const promptEnglish = document.getElementById("promptEnglish").value;
   const bubbleTimeout = document.getElementById("bubbleTimeout").value;
-  chrome.storage.sync.set({ apiKey, promptChinese, promptEnglish, bubbleTimeout }, () => {
+  const useAPI = document.getElementById("openaiAPI").checked ? true : false;
+  chrome.storage.sync.set({ apiKey, promptChinese, promptEnglish, bubbleTimeout, useAPI }, () => {
     console.log("API Key 和 Prompts 已保存。");
 
     const status = document.getElementById("saveStatus");
@@ -18,7 +19,7 @@ document.getElementById("save").addEventListener("click", () => {
 });
 
 function fillOptions() {
-  chrome.storage.sync.get(["apiKey", "promptChinese", "promptEnglish", "bubbleTimeout"], (result) => {
+  chrome.storage.sync.get(["apiKey", "promptChinese", "promptEnglish", "bubbleTimeout", "useAPI"], (result) => {
     if (result.apiKey) {
       document.getElementById("apiKey").value = result.apiKey;
     }
@@ -32,6 +33,9 @@ function fillOptions() {
       document.getElementById("bubbleTimeout").value = result.bubbleTimeout;
     } else {
       document.getElementById("bubbleTimeout").value = 3;
+    }
+    if (result.useAPI) {
+      document.getElementById("openaiAPI").checked = true;
     }
   });
 }

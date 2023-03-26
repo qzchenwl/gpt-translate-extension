@@ -37,6 +37,11 @@
   }
 }
 
+.translation-bubble a {
+  color: blue;
+  text-decoration: underline;
+}
+
 .bubble-content {
   margin-bottom: 10px;
 }

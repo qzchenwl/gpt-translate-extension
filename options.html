@@ -66,7 +66,7 @@
         margin-bottom: 0.25rem;
       }
 
-      input {
+      input[type=text] {
         display: block;
         width: 100%;
         width: 400px;
@@ -97,6 +97,12 @@
         <div class="option_name">GPT选项</div>
 
         <div class="option_picker">
+          <div>
+            <label>选择使用Web接口还是API接口：</label>
+            <input type="radio" id="openaiWeb" name="contact" value="web" checked /> Web
+            <input type="radio" id="openaiAPI" name="contact" value="api" /> API（需要配置OPENAI_API_KEY）
+          </div>
+
           <div>
           <label for="apiKey">OPENAI_API_KEY：</label>
           <input type="text" id="apiKey" />
