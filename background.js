@@ -30,7 +30,6 @@ async function translateText(text, targetLanguage) {
 
   let translation;
   if (useAPI) {
-
     translation = await callChatGPAPI(prompt);
   } else {
     translation = await callChatGPTWeb(prompt);

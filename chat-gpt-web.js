@@ -36,20 +36,22 @@ async function refreshAccessToken(sessionToken, cacheDuration = 10 * 60 * 1000) 
                 cookie: '__Secure-next-auth.session-token=' + sessionToken,
             },
         });
+        if (!response.ok) {
+            const body = await response.text();
+            console.error('response not ok', response.status, body);
+            throw 'Unauthorized';
+        }
+        const json = await response.json();
+        console.log('json', json);
 
-        console.log('session', response.statusText, response.status);
-
-        const jsonResponse = await response.json();
-        console.log('jsonResponse', jsonResponse);
-
-        if (!jsonResponse.accessToken) {
+        if (!json.accessToken) {
             throw 'Unauthorized';
         }
 
-        accessTokenCache.accessToken = jsonResponse.accessToken;
+        accessTokenCache.accessToken = json.accessToken;
         accessTokenCache.expiryTimestamp = currentTime + cacheDuration;
 
-        return jsonResponse.accessToken;
+        return json.accessToken;
     } catch (error) {
         console.error('Error refreshing access token:', error);
         throw error;
@@ -88,7 +90,7 @@ export async function callChatGPTWeb(question, conversationId = uuidv4()) {
                         },
                     },
                 ],
-                model: 'text-davinci-002-render-sha',
+                model: 'text-davinci-002-render',
                 parent_message_id: conversationId,
             }),
             onMessage: (message) => {
