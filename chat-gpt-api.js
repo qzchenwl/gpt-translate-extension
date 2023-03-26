@@ -1,10 +1,4 @@
-export async function callChatGPAPI(prompt) {
-    const { apiKey } = await getStorageData(["apiKey"]);
-    if (!apiKey) {
-      alert('请在插件选项中配置 API Key');
-      return;
-    }
-  
+export async function callChatGPAPI(apiKey, prompt) {
     const url = 'https://api.openai.com/v1/chat/completions';
     const response = await fetch(url, {
         method: 'POST',

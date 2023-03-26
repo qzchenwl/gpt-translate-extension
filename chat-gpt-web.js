@@ -1,21 +1,3 @@
-async function getSessionToken() {
-    const cookie = await chrome.cookies.get({
-        url: 'https://chat.openai.com',
-        name: '__Secure-next-auth.session-token',
-    });
-
-    if (cookie && cookie.value) {
-        const sessionToken = cookie.value;
-        chrome.storage.sync.set({ sessionToken: sessionToken }, () => {
-            console.log("accessToken 已保存：", sessionToken);
-        });
-        return sessionToken;
-    } else {
-        return null;
-    }
-}
-
-
 const accessTokenCache = {
     accessToken: null,
     expiryTimestamp: null,

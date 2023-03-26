@@ -2,6 +2,22 @@ import { callChatGPAPI } from "./chat-gpt-api.js";
 import { callChatGPTWeb } from "./chat-gpt-web.js";
 
 
+async function getSessionToken() {
+  const cookie = await chrome.cookies.get({
+      url: 'https://chat.openai.com',
+      name: '__Secure-next-auth.session-token',
+  });
+
+  if (cookie && cookie.value) {
+      const sessionToken = cookie.value;
+      chrome.storage.sync.set({ sessionToken: sessionToken }, () => {
+          console.log("accessToken 已保存：", sessionToken);
+      });
+      return sessionToken;
+  } else {
+      return null;
+  }
+}
 
 
 async function getStorageData(keys) {
@@ -19,7 +35,7 @@ async function getStorageData(keys) {
 
 async function translateText(text, targetLanguage) {
   console.log("translateText:", text, targetLanguage);
-  const { promptChinese, promptEnglish, useAPI } = await getStorageData(["promptChinese", "promptEnglish"]);
+  const { promptChinese, promptEnglish, useAPI } = await getStorageData(["promptChinese", "promptEnglish", "useAPI"]);
   console.log({ promptChinese, promptEnglish, useAPI });
   let prompt = `Translate the following text to ${targetLanguage === 'zh' ? 'Chinese' : 'English'}: ${text}`;
   const promptValue = targetLanguage === "zh" ? promptChinese : promptEnglish;
@@ -30,9 +46,14 @@ async function translateText(text, targetLanguage) {
 
   let translation;
   if (useAPI) {
-    translation = await callChatGPAPI(prompt);
+    const { apiKey } = await getStorageData(["apiKey"]);
+    if (!apiKey) {
+      throw '请在插件选项中配置 API Key';
+    }
+    translation = await callChatGPAPI(apiKey, prompt);
   } else {
-    translation = await callChatGPTWeb(prompt);
+    const sessionToken = await getSessionToken();
+    translation = await callChatGPTWeb(sessionToken, prompt);
   }
   console.log('translation:', translation);
   return translation;
