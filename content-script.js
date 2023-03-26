@@ -78,7 +78,7 @@ async function translateText(text, targetLanguage) {
 }
 
 
-function getSelectedNodeWidthAndLeft() {
+function setBubbleWidthAndLeft(bubble) {
   const range = window.getSelection().getRangeAt(0);
   const rects = range.getClientRects();
   let minLeft = Infinity;
@@ -93,41 +93,43 @@ function getSelectedNodeWidthAndLeft() {
   const width = maxRight - minLeft;
   const left = minLeft;
 
-  return { width, left };
+  bubble.style.width = width + 'px';
+  bubble.style.left = (left + window.scrollX) + 'px';
+}
+
+function setBubbleTop(bubble) {
+  const computedStyle = window.getComputedStyle(bubble);
+  const rect = window.getSelection().getRangeAt(0).getBoundingClientRect();
+  bubble.style.top = rect.top + window.scrollY - parseInt(computedStyle.height) - 14 + 'px';
 }
 
 async function displayTranslation(targetLanguage) {
   const bubble = createBubbleElement('翻译中……');
+
+  setBubbleWidthAndLeft(bubble);
+  setBubbleTop(bubble);
+
   const contentContainer = bubble.querySelector(".bubble-content");
-  const text = window.getSelection().toString();
-
   try {
-    const rect = window.getSelection().getRangeAt(0).getBoundingClientRect();
-    // 设置气泡的 bottom 值
-    bubble.style.bottom = (window.innerHeight - (rect.top + window.scrollY) + 14) + 'px';
-    const { width, left } = getSelectedNodeWidthAndLeft();
-    // 设置气泡的 left 值，使其与选中区域左对齐
-    bubble.style.left = (left + window.scrollX) + 'px';
-    bubble.style.width = width + 'px';
-  } catch (error) {
-    console.error('设置气泡位置出错', error);
-  }
-
-  try {
+    const text = window.getSelection().toString();
     const translation = await translateText(text, targetLanguage);
     copyToClipboard(translation);
     contentContainer.innerText = translation;
+    setBubbleTop(bubble); 
   } catch (error) {
     if (error === 'Unauthorized') {
       contentContainer.innerHTML = `请前往<a target="_blank" href="https://chat.openai.com/chat">OpenAI</a>登录，或者在设置中使用API模式。`;
+      setBubbleTop(bubble);
     } else {
       const message = '翻译遇到错误：' + JSON.stringify(error, null, 2);
       const pre = document.createElement("pre");
       pre.innerText = message;
       contentContainer.innerHTML = pre.outerHTML;
+      setBubbleTop(bubble);
     }
   } finally {
-    const { bubbleTimeout } = await getStorageData(["bubbleTimeout"]);
+    let { bubbleTimeout } = await getStorageData(["bubbleTimeout"]);
+    bubbleTimeout = bubbleTimeout || 3;
     if (bubbleTimeout > 0) {
       setTimeout(() => {
         bubble.remove();
