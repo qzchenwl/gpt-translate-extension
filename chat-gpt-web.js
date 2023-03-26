@@ -48,8 +48,7 @@ function uuidv4() {
     });
 }
 
-export async function callChatGPTWeb(question, conversationId = uuidv4()) {
-    const sessionToken = await getSessionToken();
+export async function callChatGPTWeb(sessionToken, question, conversationId = uuidv4()) {
     const accessToken = await refreshAccessToken(sessionToken);
     let response = '';
     return new Promise((resolve, reject) => {
