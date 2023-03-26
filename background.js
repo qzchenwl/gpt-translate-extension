@@ -53,6 +53,9 @@ async function translateText(text, targetLanguage) {
     translation = await callChatGPAPI(apiKey, prompt);
   } else {
     const sessionToken = await getSessionToken();
+    if (!sessionToken) {
+      throw 'Unauthorized';
+    }
     translation = await callChatGPTWeb(sessionToken, prompt);
   }
   console.log('translation:', translation);
