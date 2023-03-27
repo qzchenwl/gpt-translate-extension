@@ -77,6 +77,9 @@ async function translateText(text, targetLanguage) {
   return await callBackgroundFunction('translateText', {text, targetLanguage});
 }
 
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
 
 function setBubbleWidthAndLeft(bubble) {
   const range = window.getSelection().getRangeAt(0);
@@ -90,17 +93,19 @@ function setBubbleWidthAndLeft(bubble) {
     maxRight = Math.max(maxRight, rect.right);
   }
 
-  const width = maxRight - minLeft;
-  const left = minLeft;
+  const width = clamp(maxRight - minLeft, 30, window.innerWidth);
+  const left = clamp(minLeft, 0, window.innerWidth);
 
   bubble.style.width = width + 'px';
-  bubble.style.left = (left + window.scrollX) + 'px';
+  bubble.style.left = left + window.scrollX + 'px';
 }
 
 function setBubbleTop(bubble) {
   const computedStyle = window.getComputedStyle(bubble);
+  const bubbleHeight = parseInt(computedStyle.height);
   const rect = window.getSelection().getRangeAt(0).getBoundingClientRect();
-  bubble.style.top = rect.top + window.scrollY - parseInt(computedStyle.height) - 14 + 'px';
+  const top = clamp(rect.top, bubbleHeight + 14, window.innerHeight);
+  bubble.style.top = top + window.scrollY - (bubbleHeight + 14) + 'px';
 }
 
 async function displayTranslation(targetLanguage) {
