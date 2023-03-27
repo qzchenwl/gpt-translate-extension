@@ -1,4 +1,5 @@
-export async function callChatGPAPI(apiKey, prompt) {
+export async function callChatGPAPI(apiKey, model, prompt) {
+    console.log('callChatGPAPI', apiKey.slice(0, 4) + '****', model, prompt);
     const url = 'https://api.openai.com/v1/chat/completions';
     const response = await fetch(url, {
         method: 'POST',
@@ -7,7 +8,7 @@ export async function callChatGPAPI(apiKey, prompt) {
             'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-            model: 'gpt-3.5-turbo',
+            model: model || 'gpt-3.5-turbo',
             messages: [{ "role": "user", "content": prompt }]
         })
     });

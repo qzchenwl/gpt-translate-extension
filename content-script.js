@@ -93,7 +93,7 @@ function setBubbleWidthAndLeft(bubble) {
     maxRight = Math.max(maxRight, rect.right);
   }
 
-  const width = clamp(maxRight - minLeft, 30, window.innerWidth);
+  const width = clamp(maxRight - minLeft, 150, window.innerWidth);
   const left = clamp(minLeft, 0, window.innerWidth);
 
   bubble.style.width = width + 'px';

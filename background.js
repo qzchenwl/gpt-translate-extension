@@ -11,7 +11,7 @@ async function getSessionToken() {
   if (cookie && cookie.value) {
       const sessionToken = cookie.value;
       chrome.storage.sync.set({ sessionToken: sessionToken }, () => {
-          console.log("accessToken 已保存：", sessionToken);
+          console.log("sessionToken 已保存：", sessionToken);
       });
       return sessionToken;
   } else {
@@ -35,7 +35,7 @@ async function getStorageData(keys) {
 
 async function translateText(text, targetLanguage) {
   console.log("translateText:", text, targetLanguage);
-  const { promptChinese, promptEnglish, useAPI } = await getStorageData(["promptChinese", "promptEnglish", "useAPI"]);
+  const { promptChinese, promptEnglish, useAPI, model } = await getStorageData(["promptChinese", "promptEnglish", "useAPI", "model"]);
   console.log({ promptChinese, promptEnglish, useAPI });
   let prompt = `Translate the following text to ${targetLanguage === 'zh' ? 'Chinese' : 'English'}: ${text}`;
   const promptValue = targetLanguage === "zh" ? promptChinese : promptEnglish;
@@ -50,13 +50,13 @@ async function translateText(text, targetLanguage) {
     if (!apiKey) {
       throw '请在插件选项中配置 API Key';
     }
-    translation = await callChatGPAPI(apiKey, prompt);
+    translation = await callChatGPAPI(apiKey, model, prompt);
   } else {
     const sessionToken = await getSessionToken();
     if (!sessionToken) {
       throw 'Unauthorized';
     }
-    translation = await callChatGPTWeb(sessionToken, prompt);
+    translation = await callChatGPTWeb(sessionToken, model, prompt);
   }
   console.log('translation:', translation);
   return translation;

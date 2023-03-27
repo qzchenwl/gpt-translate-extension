@@ -36,6 +36,8 @@
       .option_name {
         display: table-cell;
         font-weight: bold;
+        font-size: 1.3em;
+        color: #2c3e50;
         margin-top: 3px;
         padding-right: 16px;
         padding-top: 16px;
@@ -44,6 +46,25 @@
 
       .option_picker {
         display: table-cell;
+      }
+
+      .option_picker label {
+        font-weight: normal;
+        font-size: 1em;
+        color: #34495e;
+        margin-bottom: 5px;
+      }
+
+      .option_picker input[type=text],
+      .option_picker input[type=number],
+      .option_picker input[type=radio],
+      .option_picker select {
+        font-size: 0.9em;
+        color: #34495e;
+      }
+
+      .tooltip {
+        cursor: pointer;
       }
 
       .buttons {
@@ -98,30 +119,35 @@
 
         <div class="option_picker">
           <div>
-            <label>选择使用Web接口还是API接口：</label>
-            <input type="radio" id="openaiWeb" name="contact" value="web" checked /> Web
-            <input type="radio" id="openaiAPI" name="contact" value="api" /> API（需要配置OPENAI_API_KEY）
+            <label>接口类型：</label>
+            <input type="radio" id="openaiWeb" name="api-type" value="web" checked /> Web <span title="需登录 https://chat.openai.com/chat" class="tooltip">ⓘ</span>
+            <input type="radio" id="openaiAPI" name="api-type" value="api" /> API <span title="需配置 OPENAI_API_KEY" class="tooltip">ⓘ</span>
           </div>
-
           <div>
-          <label for="apiKey">OPENAI_API_KEY：</label>
-          <input type="text" id="apiKey" />
-        </div>
-        <div>
-          <label for="promptChinese">翻译为中文的 Prompt（使用 {text} 作为待翻译文本的占位符）：</label>
-          <input type="text" id="promptChinese" />
-        </div>
-        <div>
-          <label for="promptEnglish">翻译为英文的 Prompt（使用 {text} 作为待翻译文本的占位符）：</label>
-          <input type="text" id="promptEnglish" />
-        </div>
+            <label for="modelSelect">模型：</label>
+            <select id="modelSelect">
+              <option value=''>默认</option>
+            </select>
+          </div>
+          <div>
+            <label for="apiKey">OPENAI_API_KEY <span title="前往 https://platform.openai.com/account/api-keys 获取" class="tooltip">ⓘ</span>：</label>
+            <input type="text" id="apiKey" />
+          </div>
+          <div>
+            <label for="promptChinese">翻译为中文的 Prompt <span title="使用 {text} 作为待翻译文本的占位符" class="tooltip">ⓘ</span>：</label>
+            <input type="text" id="promptChinese" />
+          </div>
+          <div>
+            <label for="promptEnglish">翻译为英文的 Prompt <span title="使用 {text} 作为待翻译文本的占位符" class="tooltip">ⓘ</span>：</label>
+            <input type="text" id="promptEnglish" />
+          </div>
         </div>
       </div>
 
       <div class="option_row">
         <div class="option_name">展示选项</div>
         <div class="option_picker">
-          <label for="bubbleTimeout">气泡停留时长，单位秒，-1代表不自动关闭：</label>
+          <label for="bubbleTimeout">气泡停留时长（秒），-1代表永久：</label>
           <input type="number" id="bubbleTimeout" />
         </div>
       </div>

@@ -48,7 +48,8 @@ function uuidv4() {
     });
 }
 
-export async function callChatGPTWeb(sessionToken, question, conversationId = uuidv4()) {
+export async function callChatGPTWeb(sessionToken, model, question, conversationId = uuidv4()) {
+    console.log('callChatGPTWeb', sessionToken.slice(0, 4) + '****', model, question);
     const accessToken = await refreshAccessToken(sessionToken);
     let response = '';
     return new Promise((resolve, reject) => {
@@ -71,7 +72,7 @@ export async function callChatGPTWeb(sessionToken, question, conversationId = uu
                         },
                     },
                 ],
-                model: 'text-davinci-002-render',
+                model: model || 'text-davinci-002-render-sha',
                 parent_message_id: conversationId,
             }),
             onMessage: (message) => {
