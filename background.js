@@ -118,11 +118,11 @@ chrome.runtime.onInstalled.addListener(() => {
     contexts: ["image"]
   });
 
-  chrome.contextMenus.create({
-    id: "imageTextRecognitionToEnglish",
-    title: "翻译图片中文字为英文",
-    contexts: ["image"]
-  });
+  // chrome.contextMenus.create({
+  //   id: "imageTextRecognitionToEnglish",
+  //   title: "翻译图片中文字为英文",
+  //   contexts: ["image"]
+  // });
 });
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
