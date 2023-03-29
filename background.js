@@ -1,5 +1,6 @@
-import { callChatGPAPI } from "./chat-gpt-api.js";
-import { callChatGPTWeb } from "./chat-gpt-web.js";
+import {callChatGPAPI} from "./chat-gpt-api.js";
+import {callChatGPTWeb} from "./chat-gpt-web.js";
+import {baiduOCR} from './baidu-ocr-api.js'
 
 
 async function getSessionToken() {
@@ -33,8 +34,8 @@ async function getStorageData(keys) {
 }
 
 
-async function translateText(text, targetLanguage) {
-  console.log("translateText:", text, targetLanguage);
+async function translateText(text, targetLanguage, json = false) {
+  console.log("translateText:", text, targetLanguage, json);
   const { promptChinese, promptEnglish, useAPI, model } = await getStorageData(["promptChinese", "promptEnglish", "useAPI", "model"]);
   console.log({ promptChinese, promptEnglish, useAPI });
   let prompt = `Translate the following text to ${targetLanguage === 'zh' ? 'Chinese' : 'English'}: ${text}`;
@@ -42,13 +43,16 @@ async function translateText(text, targetLanguage) {
   if (promptValue) {
     prompt = promptValue.replace("{text}", text);
   }
+  if (json) {
+    prompt = `Please translate following JSON object values into ${targetLanguage === 'zh' ? 'Chinese' : 'English'} one by one. You must output a translated JSON object with the same size as the original object.\n${text}`
+  }
   console.log("prompt:", prompt);
 
   let translation;
   if (useAPI) {
     const { apiKey } = await getStorageData(["apiKey"]);
     if (!apiKey) {
-      throw '请在插件选项中配置 API Key';
+      throw '请在插件选项中配置OPENAI_API_KEY';
     }
     translation = await callChatGPAPI(apiKey, model, prompt);
   } else {
@@ -63,8 +67,19 @@ async function translateText(text, targetLanguage) {
 }
 
 
+async function ocr(imageBase64) {
+  console.log("ocr:", imageBase64.slice(0, 10));
+  const {ocrApiKey, ocrSecretKey} = await getStorageData(["ocrApiKey", "ocrSecretKey"]);
+  if (!ocrApiKey || !ocrSecretKey) {
+    throw '请在插件选项中配置BAIDU_OCR_API_KEY以及BAIDU_OCR_SECRET_KEY';
+  }
+  return await baiduOCR(ocrApiKey, ocrSecretKey, imageBase64, "auto_detect");
+}
+
+
 const backgroundFunctions = {
-  translateText: ({text, targetLanguage}) => translateText(text, targetLanguage)
+  translateText: ({text, targetLanguage, json}) => translateText(text, targetLanguage, json),
+  ocr: ({imageBase64}) => ocr(imageBase64),
 };
 
 
@@ -96,6 +111,18 @@ chrome.runtime.onInstalled.addListener(() => {
     title: "翻译为英文",
     contexts: ["selection"]
   });
+
+  chrome.contextMenus.create({
+    id: "imageTextRecognitionToChinese",
+    title: "翻译图片中文字为中文",
+    contexts: ["image"]
+  });
+
+  chrome.contextMenus.create({
+    id: "imageTextRecognitionToEnglish",
+    title: "翻译图片中文字为英文",
+    contexts: ["image"]
+  });
 });
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
@@ -103,6 +130,9 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (menuItemId === "translateToChinese" || menuItemId === "translateToEnglish") {
     const targetLanguage = menuItemId === "translateToChinese" ? "zh" : "en";
     chrome.tabs.sendMessage(tab.id, { action: "translate", targetLanguage });
+  } else if (menuItemId === "imageTextRecognitionToChinese" || menuItemId === "imageTextRecognitionToEnglish") {
+    const targetLanguage = menuItemId === "imageTextRecognitionToChinese" ? "zh" : "en";
+    chrome.tabs.sendMessage(tab.id, { action: "recognize", imageUrl: info.srcUrl, targetLanguage })
   }
 });
 

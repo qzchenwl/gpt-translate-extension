@@ -10,6 +10,16 @@ async function getStorageData(keys) {
   });
 }
 
+
+async function translateText(text, targetLanguage, json) {
+  return await callBackgroundFunction('translateText', {text, targetLanguage, json});
+}
+
+
+async function ocr(imageBase64) {
+  return await callBackgroundFunction('ocr', {imageBase64});
+}
+
 function createBubbleElement(content) {
   const bubble = document.createElement("div");
   bubble.className = "translation-bubble";
@@ -70,11 +80,6 @@ function copyToClipboard(content) {
   } else {
     unsecuredCopyToClipboard(content);
   }
-};
-
-
-async function translateText(text, targetLanguage) {
-  return await callBackgroundFunction('translateText', {text, targetLanguage});
 }
 
 function clamp(value, min, max) {
@@ -143,10 +148,133 @@ async function displayTranslation(targetLanguage) {
   }
 }
 
+
+async function displayImageTextRecognition(imageUrl, targetLanguage) {
+  // 创建遮罩层
+  const overlay = document.createElement('div');
+  overlay.id = 'image-overlay';
+  overlay.className = 'image-overlay';
+  // 点击遮罩层以关闭全屏显示
+  overlay.addEventListener('click', function(event) {
+    if (event.target === overlay) {
+      document.body.removeChild(overlay);
+    }
+  });
+  // 将遮罩层添加到页面
+  document.body.appendChild(overlay);
+
+  // 创建一个表示loading状态的元素
+  const loadingElement = document.createElement('div');
+  loadingElement.className = 'loading-spinner';
+
+  // 将loading状态添加到遮罩层
+  overlay.appendChild(loadingElement);
+
+  // 创建一个图片元素
+  const image = document.createElement('img');
+  image.src = imageUrl;
+  image.className = 'full-screen-image'; // 添加此行
+  image.crossOrigin = 'anonymous';
+
+  // 将图片添加到遮罩层
+  overlay.appendChild(image);
+
+  // 等待图片加载完成
+  await new Promise((resolve) => { image.onload = resolve });
+
+  // 将图片转换为Base64格式
+  const imageBase64 = imageToBase64(image);
+
+  // 调用OCR函数并等待结果
+  const ocrResult = await ocr(imageBase64);
+  const texts = {};
+  ocrResult.forEach((entry, i) => {
+    texts[i] = entry.words;
+  });
+  const translation = await translateText(JSON.stringify(texts), targetLanguage, true);
+  const translatedTexts = JSON.parse(translation);
+  ocrResult.forEach((entry, index) => { entry.words = translatedTexts[index];});
+
+  // 在图片上显示OCR结果
+  displayOcrResults(ocrResult, image, overlay);
+
+  // OCR 完成后，移除 loading 状态
+  overlay.removeChild(loadingElement);
+}
+
+
+function imageToBase64(image) {
+  const canvas = document.createElement('canvas');
+  canvas.width = image.naturalWidth;
+  canvas.height = image.naturalHeight;
+
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+  const dataUrl = canvas.toDataURL('image/png');
+  // 移除前缀
+  return dataUrl.replace(/^data:image\/\w+;base64,/, '');
+}
+
+
+function displayOcrResults(wordsResults, image, overlay) {
+  const imageNaturalWidth = image.naturalWidth;
+  const imageNaturalHeight = image.naturalHeight;
+  const imageDisplayWidth = image.clientWidth;
+  const imageDisplayHeight = image.clientHeight;
+
+  const scaleX = imageDisplayWidth / imageNaturalWidth;
+  const scaleY = imageDisplayHeight / imageNaturalHeight;
+
+  const imageComputedStyle = window.getComputedStyle(image);
+  // 创建 OCR 结果容器
+  const container = document.createElement('div');
+  container.className = 'ocr-container';
+  container.style.top = imageComputedStyle.top;
+  container.style.left = imageComputedStyle.left;
+  container.style.width = imageComputedStyle.width;
+  container.style.height = imageComputedStyle.height;
+  overlay.appendChild(container);
+
+  wordsResults.forEach((wordResult) => {
+    const location = wordResult.location;
+
+    // 创建 OCR 文本元素
+    const textElement = document.createElement('pre');
+    textElement.className = 'ocr-text';
+    textElement.style.top = (location.top * scaleY) + 'px';
+    textElement.style.left = (location.left * scaleX) + 'px';
+    textElement.style.width = (location.width * scaleX) + 'px';
+    textElement.style.height = (location.height * scaleY) + 'px';
+    textElement.style.lineHeight = (wordResult.lineHeight * scaleY) + 'px';
+    textElement.style.fontSize = (wordResult.fontSize * scaleY) + 'px';
+    textElement.textContent = wordResult.words;
+
+    // 将文字元素添加到遮罩层
+    container.appendChild(textElement);
+  });
+
+}
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "translate") {
     // 使用 OpenAI 接口进行翻译
     const { targetLanguage } = request;
-    displayTranslation(targetLanguage);
+    try {
+      displayTranslation(targetLanguage);
+    } catch (error) {
+      console.error(error);
+      const message = error.message || JSON.stringify(error);
+      alert('翻译文本失败：' + message);
+    }
+  } else if (request.action === "recognize") {
+    const { imageUrl, targetLanguage } = request;
+    try {
+      displayImageTextRecognition(imageUrl, targetLanguage);
+    } catch (error) {
+      console.error(error);
+      const message = error.message || JSON.stringify(error);
+      alert('翻译图片失败：' + message);
+    }
   }
 });

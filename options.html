@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh">
   <head>
     <title>插件选项</title>
     <meta charset="UTF-8"/>
@@ -89,7 +89,6 @@
 
       input[type=text] {
         display: block;
-        width: 100%;
         width: 400px;
         padding: 0.25rem;
         box-sizing: border-box;
@@ -132,6 +131,14 @@
           <div>
             <label for="apiKey">OPENAI_API_KEY <span title="前往 https://platform.openai.com/account/api-keys 获取" class="tooltip">ⓘ</span>：</label>
             <input type="text" id="apiKey" />
+          </div>
+          <div>
+            <label for="apiKey">BAIDU_OCR_API_KEY <span title="前往 https://console.bce.baidu.com/ai/?_=1680076729691#/ai/ocr/app/list 获取" class="tooltip">ⓘ</span>：</label>
+            <input type="text" id="ocrApiKey" />
+          </div>
+          <div>
+            <label for="apiKey">BAIDU_OCR_SECRET_KEY <span title="前往 https://console.bce.baidu.com/ai/?_=1680076729691#/ai/ocr/app/list 获取" class="tooltip">ⓘ</span>：</label>
+            <input type="text" id="ocrSecretKey" />
           </div>
           <div>
             <label for="promptChinese">翻译为中文的 Prompt <span title="使用 {text} 作为待翻译文本的占位符" class="tooltip">ⓘ</span>：</label>
