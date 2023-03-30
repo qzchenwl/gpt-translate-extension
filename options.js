@@ -1,32 +1,32 @@
 function fillOptions() {
-    chrome.storage.sync.get(["apiKey", "ocrApiKey", "ocrSecretKey", "model", "promptChinese", "promptEnglish", "bubbleTimeout", "useAPI"], (result) => {
+    chrome.storage.sync.get(['apiKey', 'ocrApiKey', 'ocrSecretKey', 'model', 'promptChinese', 'promptEnglish', 'bubbleTimeout', 'useAPI'], (result) => {
         if (result.apiKey) {
-            document.getElementById("apiKey").value = result.apiKey;
+            document.getElementById('apiKey').value = result.apiKey;
         }
         if (result.ocrApiKey) {
-            document.getElementById("ocrApiKey").value = result.ocrApiKey;
+            document.getElementById('ocrApiKey').value = result.ocrApiKey;
         }
         if (result.ocrSecretKey) {
-            document.getElementById("ocrSecretKey").value = result.ocrSecretKey;
+            document.getElementById('ocrSecretKey').value = result.ocrSecretKey;
         }
         if (result.promptChinese) {
-            document.getElementById("promptChinese").value = result.promptChinese;
+            document.getElementById('promptChinese').value = result.promptChinese;
         }
         if (result.promptEnglish) {
-            document.getElementById("promptEnglish").value = result.promptEnglish;
+            document.getElementById('promptEnglish').value = result.promptEnglish;
         }
         if (result.bubbleTimeout) {
-            document.getElementById("bubbleTimeout").value = result.bubbleTimeout;
+            document.getElementById('bubbleTimeout').value = result.bubbleTimeout;
         } else {
-            document.getElementById("bubbleTimeout").value = 3;
+            document.getElementById('bubbleTimeout').value = 3;
         }
         if (result.useAPI) {
-            document.getElementById("openaiAPI").checked = true;
+            document.getElementById('openaiAPI').checked = true;
         }
 
         updateModelList().then(() => {
             if (result.model) {
-                document.getElementById("modelSelect").value = result.model;
+                document.getElementById('modelSelect').value = result.model;
             }
         });
 
@@ -34,14 +34,14 @@ function fillOptions() {
 }
 
 function saveOptions() {
-    const apiKey = document.getElementById("apiKey").value;
-    const ocrApiKey = document.getElementById("ocrApiKey").value;
-    const ocrSecretKey = document.getElementById("ocrSecretKey").value;
-    const model = document.getElementById("modelSelect").value || '';
-    const promptChinese = document.getElementById("promptChinese").value;
-    const promptEnglish = document.getElementById("promptEnglish").value;
-    const bubbleTimeout = document.getElementById("bubbleTimeout").value;
-    const useAPI = !!document.getElementById("openaiAPI").checked;
+    const apiKey = document.getElementById('apiKey').value;
+    const ocrApiKey = document.getElementById('ocrApiKey').value;
+    const ocrSecretKey = document.getElementById('ocrSecretKey').value;
+    const model = document.getElementById('modelSelect').value || '';
+    const promptChinese = document.getElementById('promptChinese').value;
+    const promptEnglish = document.getElementById('promptEnglish').value;
+    const bubbleTimeout = document.getElementById('bubbleTimeout').value;
+    const useAPI = !!document.getElementById('openaiAPI').checked;
     chrome.storage.sync.set({
         apiKey,
         ocrApiKey,
@@ -52,14 +52,14 @@ function saveOptions() {
         bubbleTimeout,
         useAPI
     }, () => {
-        console.log("API Key 和 Prompts 已保存。");
+        console.log('API Key 和 Prompts 已保存。');
 
-        const status = document.getElementById("saveStatus");
-        status.style.display = "";
-        status.style.setProperty("-webkit-transition", "opacity 0.4s ease-out");
+        const status = document.getElementById('saveStatus');
+        status.style.display = '';
+        status.style.setProperty('-webkit-transition', 'opacity 0.4s ease-out');
         status.style.opacity = 1;
         window.setTimeout(function () {
-            document.getElementById("saveStatus").style.opacity = 0
+            document.getElementById('saveStatus').style.opacity = 0
         }, 1500);
 
     });
@@ -75,7 +75,7 @@ async function getSessionToken() {
     if (cookie && cookie.value) {
         const sessionToken = cookie.value;
         chrome.storage.sync.set({sessionToken: sessionToken}, () => {
-            console.log("sessionToken 已保存：", sessionToken);
+            console.log('sessionToken 已保存：', sessionToken);
         });
         return sessionToken;
     } else {
@@ -147,14 +147,14 @@ async function getModelList(useAPI) {
 }
 
 async function updateModelList() {
-    const modelSelect = document.getElementById("modelSelect");
+    const modelSelect = document.getElementById('modelSelect');
     const removeAllModels = () => {
         while (modelSelect.firstChild) {
             modelSelect.removeChild(modelSelect.firstChild);
         }
     }
     const addModel = (model) => {
-        const option = document.createElement("option");
+        const option = document.createElement('option');
         option.value = model || '';
         option.text = model || '默认';
         modelSelect.add(option);
@@ -163,7 +163,7 @@ async function updateModelList() {
     removeAllModels();
     addModel('');
 
-    const useAPI = !!document.getElementById("openaiAPI").checked;
+    const useAPI = !!document.getElementById('openaiAPI').checked;
     const modelList = await getModelList(useAPI);
 
     removeAllModels();
@@ -173,7 +173,7 @@ async function updateModelList() {
 }
 
 
-document.addEventListener("DOMContentLoaded", fillOptions);
-document.getElementById("save").addEventListener("click", saveOptions);
-document.getElementById("openaiWeb").addEventListener("change", updateModelList);
-document.getElementById("openaiAPI").addEventListener("change", updateModelList);
+document.addEventListener('DOMContentLoaded', fillOptions);
+document.getElementById('save').addEventListener('click', saveOptions);
+document.getElementById('openaiWeb').addEventListener('change', updateModelList);
+document.getElementById('openaiAPI').addEventListener('change', updateModelList);

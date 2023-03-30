@@ -91,7 +91,7 @@ export async function callChatGPTWeb(sessionToken, model, question, conversation
 
 
 async function fetchSSE(resource, options) {
-    const { onMessage, ...fetchOptions } = options;
+    const {onMessage, ...fetchOptions} = options;
     const resp = await fetch(resource, fetchOptions);
     if (!resp.ok) {
         const err = new Error(resp.statusText);
@@ -121,15 +121,17 @@ function createParser(onParse) {
         feed,
         reset
     };
+
     function reset() {
         isFirstChunk = true;
-        buffer = "";
+        buffer = '';
         startingPosition = 0;
         startingFieldLength = -1;
         eventId = void 0;
         eventName = void 0;
-        data = "";
+        data = '';
     }
+
     function feed(chunk) {
         buffer = buffer ? buffer + chunk : chunk;
         if (isFirstChunk && hasBom(buffer)) {
@@ -141,7 +143,7 @@ function createParser(onParse) {
         let discardTrailingNewline = false;
         while (position < length) {
             if (discardTrailingNewline) {
-                if (buffer[position] === "\n") {
+                if (buffer[position] === '\n') {
                     ++position;
                 }
                 discardTrailingNewline = false;
@@ -151,12 +153,12 @@ function createParser(onParse) {
             let character;
             for (let index = startingPosition; lineLength < 0 && index < length; ++index) {
                 character = buffer[index];
-                if (character === ":" && fieldLength < 0) {
+                if (character === ':' && fieldLength < 0) {
                     fieldLength = index - position;
-                } else if (character === "\r") {
+                } else if (character === '\r') {
                     discardTrailingNewline = true;
                     lineLength = index - position;
-                } else if (character === "\n") {
+                } else if (character === '\n') {
                     lineLength = index - position;
                 }
             }
@@ -172,22 +174,23 @@ function createParser(onParse) {
             position += lineLength + 1;
         }
         if (position === length) {
-            buffer = "";
+            buffer = '';
         } else if (position > 0) {
             buffer = buffer.slice(position);
         }
     }
+
     function parseEventStreamLine(lineBuffer, index, fieldLength, lineLength) {
         if (lineLength === 0) {
             if (data.length > 0) {
                 onParse({
-                    type: "event",
+                    type: 'event',
                     id: eventId,
                     event: eventName || void 0,
                     data: data.slice(0, -1)
                     // remove trailing newline
                 });
-                data = "";
+                data = '';
                 eventId = void 0;
             }
             eventName = void 0;
@@ -198,7 +201,7 @@ function createParser(onParse) {
         let step = 0;
         if (noValue) {
             step = lineLength;
-        } else if (lineBuffer[index + fieldLength + 1] === " ") {
+        } else if (lineBuffer[index + fieldLength + 1] === ' ') {
             step = fieldLength + 2;
         } else {
             step = fieldLength + 1;
@@ -206,24 +209,26 @@ function createParser(onParse) {
         const position = index + step;
         const valueLength = lineLength - step;
         const value = lineBuffer.slice(position, position + valueLength).toString();
-        if (field === "data") {
-            data += value ? "".concat(value, "\n") : "\n";
-        } else if (field === "event") {
+        if (field === 'data') {
+            data += value ? ''.concat(value, '\n') : '\n';
+        } else if (field === 'event') {
             eventName = value;
-        } else if (field === "id" && !value.includes("\0")) {
+        } else if (field === 'id' && !value.includes('\0')) {
             eventId = value;
-        } else if (field === "retry") {
+        } else if (field === 'retry') {
             const retry = parseInt(value, 10);
             if (!Number.isNaN(retry)) {
                 onParse({
-                    type: "reconnect-interval",
+                    type: 'reconnect-interval',
                     value: retry
                 });
             }
         }
     }
 }
+
 const BOM = [239, 187, 191];
+
 function hasBom(buffer) {
     return BOM.every((charCode, index) => buffer.charCodeAt(index) === charCode);
 }

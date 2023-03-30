@@ -33,7 +33,7 @@ export async function baiduOCR(apiKey, secretKey, imageBase64, languageType = 'C
     const apiUrl = `https://aip.baidubce.com/rest/2.0/ocr/v1/accurate?access_token=${accessToken}&language_type=${languageType}`;
     const response = await fetch(apiUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: 'image=' + encodeURIComponent(imageBase64)
     });
     const json = await response.json();
@@ -44,6 +44,7 @@ export async function baiduOCR(apiKey, secretKey, imageBase64, languageType = 'C
 
 // API文档：https://ai.baidu.com/ai-doc/REFERENCE/Ck3dwjhhu#%E8%AF%B7%E6%B1%82url%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F
 const accessTokenCache = {};
+
 async function getAccessToken(apiKey, secretKey) {
     const now = Date.now();
     const tokenKey = `${apiKey}:${secretKey}`;
@@ -59,7 +60,7 @@ async function getAccessToken(apiKey, secretKey) {
     }
 
     const tokenUrl = `https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=${apiKey}&client_secret=${secretKey}`;
-    const response = await fetch(tokenUrl, { method: 'POST' });
+    const response = await fetch(tokenUrl, {method: 'POST'});
     const json = await response.json();
 
     if (json.access_token) {
@@ -70,7 +71,7 @@ async function getAccessToken(apiKey, secretKey) {
         };
         return json.access_token;
     } else {
-        throw "无法获取访问令牌";
+        throw '无法获取访问令牌';
     }
 }
 

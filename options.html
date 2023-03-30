@@ -1,170 +1,179 @@
 <!DOCTYPE html>
 <html lang="zh">
-  <head>
+<head>
     <title>插件选项</title>
     <meta charset="UTF-8"/>
     <style>
-      body {
-        background-color: #eee;
-        font-family: arial,sans-serif;
-        font-size: 13px;
-      }
+        body {
+            background-color: #eee;
+            font-family: arial, sans-serif;
+            font-size: 13px;
+        }
 
-      #content {
-        background-color: #fff;
-        border: 1px solid #ccc;
-        -webkit-border-radius: 3px;
-        -moz-border-radius: 3px;
-        border-radius: 3px;
-        margin: 40px auto 20px;
-        padding: 32px;
-        width: 650px;
-      }
+        #content {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            -webkit-border-radius: 3px;
+            -moz-border-radius: 3px;
+            border-radius: 3px;
+            margin: 40px auto 20px;
+            padding: 32px;
+            width: 650px;
+        }
 
-      h1 {
-        color: #333333;
-        font-size: 1.5em;
-        margin: 0.7em 0;
-        text-align: center;
-      }
+        h1 {
+            color: #333333;
+            font-size: 1.5em;
+            margin: 0.7em 0;
+            text-align: center;
+        }
 
-      .option_row {
-        display: table-row;
+        .option_row {
+            display: table-row;
 
-      }
+        }
 
-      .option_name {
-        display: table-cell;
-        font-weight: bold;
-        font-size: 1.3em;
-        color: #2c3e50;
-        margin-top: 3px;
-        padding-right: 16px;
-        padding-top: 16px;
-        white-space: nowrap;
-      }
+        .option_name {
+            display: table-cell;
+            font-weight: bold;
+            font-size: 1.3em;
+            color: #2c3e50;
+            margin-top: 3px;
+            padding-right: 16px;
+            padding-top: 16px;
+            white-space: nowrap;
+        }
 
-      .option_picker {
-        display: table-cell;
-      }
+        .option_picker {
+            display: table-cell;
+        }
 
-      .option_picker label {
-        font-weight: normal;
-        font-size: 1em;
-        color: #34495e;
-        margin-bottom: 5px;
-      }
+        .option_picker label {
+            font-weight: normal;
+            font-size: 1em;
+            color: #34495e;
+            margin-bottom: 5px;
+        }
 
-      .option_picker input[type=text],
-      .option_picker input[type=number],
-      .option_picker input[type=radio],
-      .option_picker select {
-        font-size: 0.9em;
-        color: #34495e;
-      }
+        .option_picker input[type=text],
+        .option_picker input[type=number],
+        .option_picker input[type=radio],
+        .option_picker select {
+            font-size: 0.9em;
+            color: #34495e;
+        }
 
-      .tooltip {
-        cursor: pointer;
-      }
+        .tooltip {
+            cursor: pointer;
+        }
 
-      .buttons {
-          clear: left;
-          padding: 2em 0 0.7em;
-      }
+        .buttons {
+            clear: left;
+            padding: 2em 0 0.7em;
+        }
 
-      #saveStatus {
-        background-color: #fff1a8;
-        font-weight: bold;
-        margin-left: 10px;
-        padding: 3px;
-      }
+        #saveStatus {
+            background-color: #fff1a8;
+            font-weight: bold;
+            margin-left: 10px;
+            padding: 3px;
+        }
 
-      /* -------------------- */
+        /* -------------------- */
 
-      label {
-        display: block;
-        margin-top: 1rem;
-        margin-bottom: 0.25rem;
-      }
+        label {
+            display: block;
+            margin-top: 1rem;
+            margin-bottom: 0.25rem;
+        }
 
-      input[type=text] {
-        display: block;
-        width: 400px;
-        padding: 0.25rem;
-        box-sizing: border-box;
-      }
+        input[type=text] {
+            display: block;
+            width: 400px;
+            padding: 0.25rem;
+            box-sizing: border-box;
+        }
 
-      button {
-        display: inline-block;
-        margin-top: 1rem;
-        padding: 0.5rem 1rem;
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        border-radius: 0.25rem;
-        cursor: pointer;
-      }
+        button {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+        }
 
-      button:hover {
-        background-color: #0056b3;
-      }
+        button:hover {
+            background-color: #0056b3;
+        }
     </style>
-  </head>
-  <body>
-    <div id="content">
-      <h1>GPT帮我翻译扩展程序选项</h1>
-      <div class="option_row">
+</head>
+<body>
+<div id="content">
+    <h1>GPT帮我翻译扩展程序选项</h1>
+    <div class="option_row">
         <div class="option_name">GPT选项</div>
 
         <div class="option_picker">
-          <div>
-            <label>接口类型：</label>
-            <input type="radio" id="openaiWeb" name="api-type" value="web" checked /> Web <span title="需登录 https://chat.openai.com/chat" class="tooltip">ⓘ</span>
-            <input type="radio" id="openaiAPI" name="api-type" value="api" /> API <span title="需配置 OPENAI_API_KEY" class="tooltip">ⓘ</span>
-          </div>
-          <div>
-            <label for="modelSelect">模型：</label>
-            <select id="modelSelect">
-              <option value=''>默认</option>
-            </select>
-          </div>
-          <div>
-            <label for="apiKey">OPENAI_API_KEY <span title="前往 https://platform.openai.com/account/api-keys 获取" class="tooltip">ⓘ</span>：</label>
-            <input type="text" id="apiKey" />
-          </div>
-          <div>
-            <label for="apiKey">BAIDU_OCR_API_KEY <span title="前往 https://console.bce.baidu.com/ai/?_=1680076729691#/ai/ocr/app/list 获取" class="tooltip">ⓘ</span>：</label>
-            <input type="text" id="ocrApiKey" />
-          </div>
-          <div>
-            <label for="apiKey">BAIDU_OCR_SECRET_KEY <span title="前往 https://console.bce.baidu.com/ai/?_=1680076729691#/ai/ocr/app/list 获取" class="tooltip">ⓘ</span>：</label>
-            <input type="text" id="ocrSecretKey" />
-          </div>
-          <div>
-            <label for="promptChinese">翻译为中文的 Prompt <span title="使用 {text} 作为待翻译文本的占位符" class="tooltip">ⓘ</span>：</label>
-            <input type="text" id="promptChinese" />
-          </div>
-          <div>
-            <label for="promptEnglish">翻译为英文的 Prompt <span title="使用 {text} 作为待翻译文本的占位符" class="tooltip">ⓘ</span>：</label>
-            <input type="text" id="promptEnglish" />
-          </div>
+            <div>
+                <label>接口类型：</label>
+                <input checked id="openaiWeb" name="api-type" type="radio" value="web"/> Web <span
+                    class="tooltip" title="需登录 https://chat.openai.com/chat">ⓘ</span>
+                <input id="openaiAPI" name="api-type" type="radio" value="api"/> API <span class="tooltip"
+                                                                                           title="需配置 OPENAI_API_KEY">ⓘ</span>
+            </div>
+            <div>
+                <label for="modelSelect">模型：</label>
+                <select id="modelSelect">
+                    <option value=''>默认</option>
+                </select>
+            </div>
+            <div>
+                <label for="apiKey">OPENAI_API_KEY <span class="tooltip"
+                                                         title="前往 https://platform.openai.com/account/api-keys 获取">ⓘ</span>：</label>
+                <input id="apiKey" type="text"/>
+            </div>
+            <div>
+                <label for="apiKey">BAIDU_OCR_API_KEY <span
+                        class="tooltip"
+                        title="前往 https://console.bce.baidu.com/ai/?_=1680076729691#/ai/ocr/app/list 获取">ⓘ</span>：</label>
+                <input id="ocrApiKey" type="text"/>
+            </div>
+            <div>
+                <label for="apiKey">BAIDU_OCR_SECRET_KEY <span
+                        class="tooltip"
+                        title="前往 https://console.bce.baidu.com/ai/?_=1680076729691#/ai/ocr/app/list 获取">ⓘ</span>：</label>
+                <input id="ocrSecretKey" type="text"/>
+            </div>
+            <div>
+                <label for="promptChinese">翻译为中文的 Prompt <span class="tooltip"
+                                                                     title="使用 {text} 作为待翻译文本的占位符">ⓘ</span>：</label>
+                <input id="promptChinese" type="text"/>
+            </div>
+            <div>
+                <label for="promptEnglish">翻译为英文的 Prompt <span class="tooltip"
+                                                                     title="使用 {text} 作为待翻译文本的占位符">ⓘ</span>：</label>
+                <input id="promptEnglish" type="text"/>
+            </div>
         </div>
-      </div>
+    </div>
 
-      <div class="option_row">
+    <div class="option_row">
         <div class="option_name">展示选项</div>
         <div class="option_picker">
-          <label for="bubbleTimeout">气泡停留时长（秒），-1代表永久：</label>
-          <input type="number" id="bubbleTimeout" />
+            <label for="bubbleTimeout">气泡停留时长（秒），-1代表永久：</label>
+            <input id="bubbleTimeout" type="number"/>
         </div>
-      </div>
-      
-      <div class="buttons">
+    </div>
+
+    <div class="buttons">
         <button id="save">保存</button>
         <span id="saveStatus" style="transition: opacity 0.4s ease-out 0s; opacity: 0;">选项已保存。</span>
-      </div>
-
-      <script src="options.js"></script>
     </div>
-  </body>
+
+    <script src="options.js"></script>
+</div>
+</body>
 </html>

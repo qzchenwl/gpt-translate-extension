@@ -9,12 +9,12 @@ export async function callChatGPAPI(apiKey, model, prompt) {
         },
         body: JSON.stringify({
             model: model || 'gpt-3.5-turbo',
-            messages: [{ "role": "user", "content": prompt }]
+            messages: [{'role': 'user', 'content': prompt}]
         })
     });
 
     const data = await response.json();
-    console.log("API response:", data);
+    console.log('API response:', data);
     if (!response.ok) {
         throw data;
     }
