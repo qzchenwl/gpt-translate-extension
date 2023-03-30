@@ -187,10 +187,23 @@ async function displayImageTextRecognition(imageUrl, targetLanguage) {
         });
 
         // 将图片转换为Base64格式
-        const imageBase64 = imageToBase64(image);
+        const subImages = splitImage(image);
 
-        // 调用OCR函数并等待结果
-        const ocrResult = await ocr(imageBase64);
+        // 为每张子图调用OCR函数并合并结果
+        const ocrResult = [];
+        for (let i = 0; i < subImages.length; i++) {
+            const {base64, offsetX, offsetY} = subImages[i];
+            const subOcrResult = await ocr(base64);
+            console.log('subOcrResult', subOcrResult);
+            subOcrResult.forEach(x => {
+                x.location.left += offsetX;
+                x.location.top += offsetY;
+            });
+            ocrResult.push(...subOcrResult);
+        }
+        console.log('ocrResult', ocrResult);
+
+        // 翻译ocrResult
         const texts = {};
         ocrResult.forEach((entry, i) => {
             texts[i] = entry.words;
@@ -210,17 +223,42 @@ async function displayImageTextRecognition(imageUrl, targetLanguage) {
 }
 
 
-function imageToBase64(image) {
+function splitImage(image) {
+    const MAX_SIZE = 4000;
+
+    const imgWidth = image.naturalWidth;
+    const imgHeight = image.naturalHeight;
+
     const canvas = document.createElement('canvas');
-    canvas.width = image.naturalWidth;
-    canvas.height = image.naturalHeight;
-
     const ctx = canvas.getContext('2d');
-    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    let offsetX = 0;
+    let offsetY = 0;
+    let canvasIndex = 0;
+    const canvasList = [];
+    const result = [];
 
-    const dataUrl = canvas.toDataURL('image/png');
-    // 移除前缀
-    return dataUrl.replace(/^data:image\/\w+;base64,/, '');
+    while (offsetY < imgHeight) {
+        while (offsetX < imgWidth) {
+            const width = Math.min(MAX_SIZE, imgWidth - offsetX);
+            const height = Math.min(MAX_SIZE, imgHeight - offsetY);
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(image, offsetX, offsetY, width, height, 0, 0, width, height);
+            const base64 = canvas.toDataURL('image/png').replace(/^data:image\/\w+;base64,/, '');
+            canvasList.push({ base64, offsetX, offsetY });
+            offsetX += MAX_SIZE;
+            canvasIndex++;
+        }
+        offsetX = 0;
+        offsetY += MAX_SIZE;
+    }
+
+    canvasList.forEach((canvas) => {
+        const { base64, offsetX, offsetY } = canvas;
+        result.push({ base64, offsetX, offsetY });
+    });
+
+    return result;
 }
 
 
@@ -233,14 +271,14 @@ function displayOcrResults(wordsResults, image, overlay) {
     const scaleX = imageDisplayWidth / imageNaturalWidth;
     const scaleY = imageDisplayHeight / imageNaturalHeight;
 
-    const imageComputedStyle = window.getComputedStyle(image);
+    const imageRect = image.getBoundingClientRect();
     // 创建 OCR 结果容器
     const container = document.createElement('div');
     container.className = 'ocr-container';
-    container.style.top = imageComputedStyle.top;
-    container.style.left = imageComputedStyle.left;
-    container.style.width = imageComputedStyle.width;
-    container.style.height = imageComputedStyle.height;
+    container.style.top = imageRect.top + 'px';
+    container.style.left = imageRect.left + 'px';
+    container.style.width = imageRect.width + 'px';
+    container.style.height = imageRect.height + 'px';
     overlay.appendChild(container);
 
     wordsResults.forEach((wordResult) => {
