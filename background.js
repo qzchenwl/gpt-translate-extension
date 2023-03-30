@@ -1,6 +1,6 @@
 import {callChatGPAPI} from './chat-gpt-api.js';
 import {callChatGPTWeb} from './chat-gpt-web.js';
-import {baiduOCR} from './baidu-ocr-api.js'
+import {baiduOcrGeneral} from './baidu-ocr-api.js'
 
 
 async function getSessionToken() {
@@ -78,7 +78,7 @@ async function ocr(imageBase64) {
     if (!ocrApiKey || !ocrSecretKey) {
         throw '请在插件选项中配置BAIDU_OCR_API_KEY以及BAIDU_OCR_SECRET_KEY';
     }
-    return await baiduOCR(ocrApiKey, ocrSecretKey, imageBase64, 'auto_detect');
+    return await baiduOcrGeneral(ocrApiKey, ocrSecretKey, imageBase64, 'auto_detect');
 }
 
 

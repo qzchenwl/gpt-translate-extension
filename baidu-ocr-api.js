@@ -28,7 +28,8 @@
 // - HIN：印地语
 //
 // 返回值案例：{'words_result': [{'words': 'Chris Murphy', 'location': {'top': 38, 'left': 191, 'width': 284, 'height': 49}}, {'words': '@ChrisMurphyCT', 'location': {'top': 93, 'left': 194, 'width': 351, 'height': 45}}, ...], 'words_result_num': 20, 'log_id': 1640922484978205593}
-export async function baiduOCR(apiKey, secretKey, imageBase64, languageType = 'CHN_ENG') {
+export async function baiduOcrAccurate(apiKey, secretKey, imageBase64, languageType = 'auto_detect') {
+    console.log('baiduOcrAccurate', apiKey.slice(0, 4) + '...', secretKey.slice(0, 4) + '...', imageBase64.slice(0, 4) + '...')
     const accessToken = await getAccessToken(apiKey, secretKey);
     const apiUrl = `https://aip.baidubce.com/rest/2.0/ocr/v1/accurate?access_token=${accessToken}&language_type=${languageType}`;
     const response = await fetch(apiUrl, {
@@ -38,6 +39,24 @@ export async function baiduOCR(apiKey, secretKey, imageBase64, languageType = 'C
     });
     const json = await response.json();
     const wordsResult = json.words_result;
+    console.log('wordsResult', wordsResult);
+    return mergeLinesToParagraphs(wordsResult);
+}
+
+
+// API文档：https://cloud.baidu.com/doc/OCR/s/vk3h7y58v
+export async function baiduOcrGeneral(apiKey, secretKey, imageBase64) {
+    console.log('baiduOcrGeneral', apiKey.slice(0, 4) + '...', secretKey.slice(0, 4) + '...', imageBase64.slice(0, 4) + '...')
+    const accessToken = await getAccessToken(apiKey, secretKey);
+    const apiUrl = `https://aip.baidubce.com/rest/2.0/ocr/v1/general?access_token=${accessToken}`;
+    const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: `image=${encodeURIComponent(imageBase64)}&detect_language=true`,
+    });
+    const json = await response.json();
+    const wordsResult = json.words_result;
+    console.log('wordsResult', wordsResult);
     return mergeLinesToParagraphs(wordsResult);
 }
 
