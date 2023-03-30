@@ -132,4 +132,5 @@
   margin: 0;
   padding: 0;
   border: solid 1px blue;
+  white-space: pre-wrap;
 }

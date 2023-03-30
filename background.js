@@ -114,7 +114,7 @@ chrome.runtime.onInstalled.addListener(() => {
 
   chrome.contextMenus.create({
     id: "imageTextRecognitionToChinese",
-    title: "翻译图片中文字为中文",
+    title: "翻译图片为中文",
     contexts: ["image"]
   });
 

@@ -166,40 +166,45 @@ async function displayImageTextRecognition(imageUrl, targetLanguage) {
   // 创建一个表示loading状态的元素
   const loadingElement = document.createElement('div');
   loadingElement.className = 'loading-spinner';
-
   // 将loading状态添加到遮罩层
   overlay.appendChild(loadingElement);
 
-  // 创建一个图片元素
-  const image = document.createElement('img');
-  image.src = imageUrl;
-  image.className = 'full-screen-image'; // 添加此行
-  image.crossOrigin = 'anonymous';
+  try {
+    // 创建一个图片元素
+    const image = document.createElement('img');
+    image.src = imageUrl;
+    image.className = 'full-screen-image'; // 添加此行
+    image.crossOrigin = 'anonymous';
 
-  // 将图片添加到遮罩层
-  overlay.appendChild(image);
+    // 将图片添加到遮罩层
+    overlay.appendChild(image);
 
-  // 等待图片加载完成
-  await new Promise((resolve) => { image.onload = resolve });
+    // 等待图片加载完成
+    await new Promise((resolve) => {
+      image.onload = resolve
+    });
 
-  // 将图片转换为Base64格式
-  const imageBase64 = imageToBase64(image);
+    // 将图片转换为Base64格式
+    const imageBase64 = imageToBase64(image);
 
-  // 调用OCR函数并等待结果
-  const ocrResult = await ocr(imageBase64);
-  const texts = {};
-  ocrResult.forEach((entry, i) => {
-    texts[i] = entry.words;
-  });
-  const translation = await translateText(JSON.stringify(texts), targetLanguage, true);
-  const translatedTexts = JSON.parse(translation);
-  ocrResult.forEach((entry, index) => { entry.words = translatedTexts[index];});
+    // 调用OCR函数并等待结果
+    const ocrResult = await ocr(imageBase64);
+    const texts = {};
+    ocrResult.forEach((entry, i) => {
+      texts[i] = entry.words;
+    });
+    const translation = await translateText(JSON.stringify(texts), targetLanguage, true);
+    const translatedTexts = JSON.parse(translation);
+    ocrResult.forEach((entry, index) => {
+      entry.words = translatedTexts[index];
+    });
 
-  // 在图片上显示OCR结果
-  displayOcrResults(ocrResult, image, overlay);
-
-  // OCR 完成后，移除 loading 状态
-  overlay.removeChild(loadingElement);
+    // 在图片上显示OCR结果
+    displayOcrResults(ocrResult, image, overlay);
+  } finally {
+    // OCR 完成后，移除 loading 状态
+    overlay.removeChild(loadingElement);
+  }
 }
 
 
@@ -256,12 +261,12 @@ function displayOcrResults(wordsResults, image, overlay) {
 
 }
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   if (request.action === "translate") {
     // 使用 OpenAI 接口进行翻译
     const { targetLanguage } = request;
     try {
-      displayTranslation(targetLanguage);
+      await displayTranslation(targetLanguage);
     } catch (error) {
       console.error(error);
       const message = error.message || JSON.stringify(error);
@@ -270,7 +275,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   } else if (request.action === "recognize") {
     const { imageUrl, targetLanguage } = request;
     try {
-      displayImageTextRecognition(imageUrl, targetLanguage);
+      await displayImageTextRecognition(imageUrl, targetLanguage);
     } catch (error) {
       console.error(error);
       const message = error.message || JSON.stringify(error);
