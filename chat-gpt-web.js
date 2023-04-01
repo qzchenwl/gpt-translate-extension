@@ -48,8 +48,8 @@ function uuidv4() {
     });
 }
 
-export async function callChatGPTWeb(sessionToken, model, question, conversationId = uuidv4()) {
-    console.log('callChatGPTWeb', sessionToken.slice(0, 4) + '****', model, question);
+export async function callChatGPTWeb(sessionToken, model, message, conversationId = uuidv4()) {
+    console.log('callChatGPTWeb', sessionToken.slice(0, 4) + '****', model, message);
     const accessToken = await refreshAccessToken(sessionToken);
     let response = '';
     return new Promise((resolve, reject) => {
@@ -68,7 +68,7 @@ export async function callChatGPTWeb(sessionToken, model, question, conversation
                         role: 'user',
                         content: {
                             content_type: 'text',
-                            parts: [question],
+                            parts: [message],
                         },
                     },
                 ],

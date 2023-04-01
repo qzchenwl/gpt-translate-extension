@@ -109,6 +109,7 @@
 
 .full-screen-image {
     margin: auto;
+    max-width: 45%;
 }
 
 .image-overlay {

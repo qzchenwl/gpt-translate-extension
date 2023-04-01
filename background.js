@@ -3,6 +3,15 @@ import {callChatGPTWeb} from './chat-gpt-web.js';
 import {baiduOcrGeneral} from './baidu-ocr-api.js'
 
 
+function uuidv4() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+  });
+}
+
+
 async function getSessionToken() {
     const cookie = await chrome.cookies.get({
         url: 'https://chat.openai.com',
@@ -34,8 +43,8 @@ async function getStorageData(keys) {
 }
 
 
-async function translateText(text, targetLanguage, json = false) {
-    console.log('translateText:', text, targetLanguage, json);
+async function translateText(text, targetLanguage, ocr = false) {
+    console.log('translateText:', text, targetLanguage, ocr);
     const {
         promptChinese,
         promptEnglish,
@@ -43,15 +52,17 @@ async function translateText(text, targetLanguage, json = false) {
         model
     } = await getStorageData(['promptChinese', 'promptEnglish', 'useAPI', 'model']);
     console.log({promptChinese, promptEnglish, useAPI});
-    let prompt = `Translate the following text to ${targetLanguage === 'zh' ? 'Chinese' : 'English'}: ${text}`;
-    const promptValue = targetLanguage === 'zh' ? promptChinese : promptEnglish;
-    if (promptValue) {
-        prompt = promptValue.replace('{text}', text);
+
+    const messages = [];
+    if (!ocr) {
+      let promptTemplate = targetLanguage == 'zh' ? promptChinese : promptEnglish;
+      promptTemplate = promptTemplate || `Translate the following text to ${targetLanguage === 'zh' ? 'Chinese' : 'English'}: {text}`;
+      messages.push({role: 'user', content: promptTemplate.replace('{text}', text)});
+    } else {
+      messages.push({role: 'system', content: 'You are a professional translator, specializing in translating from any language to Chinese. You are committed to providing accurate translations without adding any extra content. When translating, you will be provided with sections of text, each prefixed by the section index using the format [section index]. Please translate the content into Chinese and present it in a JSON object, where the index serves as the key and the translated text serves as the value. The section header should be removed from the final output. Please help me translate the following content into Chinese.'});
+      messages.push({role: 'user', content: text});
     }
-    if (json) {
-        prompt = `Please translate following JSON object values into ${targetLanguage === 'zh' ? 'Chinese' : 'English'} one by one. You must output a translated JSON object with the same size as the original object.\n${text}`
-    }
-    console.log('prompt:', prompt);
+    console.log('messages:', messages);
 
     let translation;
     if (useAPI) {
@@ -59,13 +70,14 @@ async function translateText(text, targetLanguage, json = false) {
         if (!apiKey) {
             throw '请在插件选项中配置OPENAI_API_KEY';
         }
-        translation = await callChatGPAPI(apiKey, model, prompt);
+        translation = await callChatGPAPI(apiKey, model, messages);
     } else {
         const sessionToken = await getSessionToken();
         if (!sessionToken) {
             throw 'Unauthorized';
         }
-        translation = await callChatGPTWeb(sessionToken, model, prompt);
+        const message = messages.map(m => m.content).join('\n');
+        translation = await callChatGPTWeb(sessionToken, model, message);
     }
     console.log('translation:', translation);
     return translation;
@@ -83,7 +95,7 @@ async function ocr(imageBase64) {
 
 
 const backgroundFunctions = {
-    translateText: ({text, targetLanguage, json}) => translateText(text, targetLanguage, json),
+    translateText: ({text, targetLanguage, ocr}) => translateText(text, targetLanguage, ocr),
     ocr: ({imageBase64}) => ocr(imageBase64),
 };
 

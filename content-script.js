@@ -11,8 +11,8 @@ async function getStorageData(keys) {
 }
 
 
-async function translateText(text, targetLanguage, json) {
-    return await callBackgroundFunction('translateText', {text, targetLanguage, json});
+async function translateText(text, targetLanguage, ocr) {
+    return await callBackgroundFunction('translateText', {text, targetLanguage, ocr});
 }
 
 
@@ -170,13 +170,18 @@ async function displayImageTextRecognition(imageUrl, targetLanguage) {
     overlay.appendChild(loadingElement);
 
     try {
-        // 创建一个图片元素
+        // 创建原图展示
+        const originImage = document.createElement('img');
+        originImage.src = imageUrl;
+        originImage.className = 'full-screen-image';
+        originImage.crossOrigin = 'anonymous';
+        overlay.appendChild(originImage);
+
+        // 创建翻译图展示
         const image = document.createElement('img');
         image.src = imageUrl;
         image.className = 'full-screen-image'; // 添加此行
         image.crossOrigin = 'anonymous';
-
-        // 将图片添加到遮罩层
         overlay.appendChild(image);
 
         // 等待图片加载完成
@@ -204,12 +209,14 @@ async function displayImageTextRecognition(imageUrl, targetLanguage) {
         console.log('ocrResult', ocrResult);
 
         // 翻译ocrResult
-        const texts = {};
+        let texts = '';
         ocrResult.forEach((entry, i) => {
-            texts[i] = entry.words;
+            texts += `[section ${i}]\n${entry.words}\n`;
         });
-        const translation = await translateText(JSON.stringify(texts), targetLanguage, true);
+        const translation = await translateText(texts, targetLanguage, true);
         const translatedTexts = JSON.parse(translation);
+        console.log(translation);
+        console.log(translatedTexts);
         ocrResult.forEach((entry, index) => {
             entry.words = translatedTexts[index];
         });
