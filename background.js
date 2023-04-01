@@ -1,15 +1,6 @@
 import {callChatGPAPI} from './chat-gpt-api.js';
 import {callChatGPTWeb} from './chat-gpt-web.js';
-import {baiduOcrGeneral} from './baidu-ocr-api.js'
-
-
-function uuidv4() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-      const r = Math.random() * 16 | 0;
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-  });
-}
+import {baiduOcrGeneral, mergeLinesToParagraphs} from './baidu-ocr-api.js'
 
 
 async function getSessionToken() {
@@ -95,8 +86,9 @@ async function ocr(imageBase64) {
 
 
 const backgroundFunctions = {
-    translateText: ({text, targetLanguage, ocr}) => translateText(text, targetLanguage, ocr),
-    ocr: ({imageBase64}) => ocr(imageBase64),
+    translateText: async ({text, targetLanguage, ocr}) => await translateText(text, targetLanguage, ocr),
+    ocr: async ({imageBase64}) => await ocr(imageBase64),
+    mergeLinesToParagraphs: async ({wordsResults}) => mergeLinesToParagraphs(wordsResults)
 };
 
 

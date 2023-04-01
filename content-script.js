@@ -20,6 +20,11 @@ async function ocr(imageBase64) {
     return await callBackgroundFunction('ocr', {imageBase64});
 }
 
+
+async function mergeLinesToParagraphs(wordsResults) {
+  return await callBackgroundFunction('mergeLinesToParagraphs', {wordsResults})
+}
+
 function createBubbleElement(content) {
     const bubble = document.createElement('div');
     bubble.className = 'translation-bubble';
@@ -195,34 +200,35 @@ async function displayImageTextRecognition(imageUrl, targetLanguage) {
         const subImages = splitImage(image);
 
         // 为每张子图调用OCR函数并合并结果
-        const ocrResult = [];
+        const wordsResults = [];
         for (let i = 0; i < subImages.length; i++) {
             const {base64, offsetX, offsetY} = subImages[i];
-            const subOcrResult = await ocr(base64);
-            console.log('subOcrResult', subOcrResult);
-            subOcrResult.forEach(x => {
+            const subWordsResults = await ocr(base64);
+            console.log('subWordsResults', subWordsResults);
+            subWordsResults.forEach(x => {
                 x.location.left += offsetX;
                 x.location.top += offsetY;
             });
-            ocrResult.push(...subOcrResult);
+            wordsResults.push(...subWordsResults);
         }
-        console.log('ocrResult', ocrResult);
+        console.log('wordsResults', wordsResults);
+        const paragraphs = await mergeLinesToParagraphs(wordsResults);
 
-        // 翻译ocrResult
+        // 翻译paragraphs
         let texts = '';
-        ocrResult.forEach((entry, i) => {
+        paragraphs.forEach((entry, i) => {
             texts += `[section ${i}]\n${entry.words}\n`;
         });
         const translation = await translateText(texts, targetLanguage, true);
         const translatedTexts = JSON.parse(translation);
         console.log(translation);
         console.log(translatedTexts);
-        ocrResult.forEach((entry, index) => {
+        paragraphs.forEach((entry, index) => {
             entry.words = translatedTexts[index];
         });
 
         // 在图片上显示OCR结果
-        displayOcrResults(ocrResult, image, overlay);
+        displayOcrResults(paragraphs, image, overlay);
     } finally {
         // OCR 完成后，移除 loading 状态
         overlay.removeChild(loadingElement);
@@ -231,7 +237,7 @@ async function displayImageTextRecognition(imageUrl, targetLanguage) {
 
 
 function splitImage(image) {
-    const MAX_SIZE = 4000;
+    const MAX_SIZE = 4096;
 
     const imgWidth = image.naturalWidth;
     const imgHeight = image.naturalHeight;

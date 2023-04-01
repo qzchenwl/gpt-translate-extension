@@ -40,7 +40,7 @@ export async function baiduOcrAccurate(apiKey, secretKey, imageBase64, languageT
     const json = await response.json();
     const wordsResult = json.words_result;
     console.log('wordsResult', wordsResult);
-    return mergeLinesToParagraphs(wordsResult);
+    return wordsResult;
 }
 
 
@@ -57,7 +57,7 @@ export async function baiduOcrGeneral(apiKey, secretKey, imageBase64) {
     const json = await response.json();
     const wordsResult = json.words_result;
     console.log('wordsResult', wordsResult);
-    return mergeLinesToParagraphs(wordsResult);
+    return wordsResult;
 }
 
 
@@ -95,7 +95,7 @@ async function getAccessToken(apiKey, secretKey) {
 }
 
 
-function mergeLinesToParagraphs(wordsResults) {
+export function mergeLinesToParagraphs(wordsResults) {
     const data = wordsResults.map((item) => [item.location.top, item.location.left, item.location.height, item.location.width]);
     const dbscan = new DBSCAN(2, 1, customDistance);
     dbscan.fit(data);
